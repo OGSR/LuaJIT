@@ -15,6 +15,7 @@
 
 @setlocal
 @set LJCOMPILE=cl /nologo /MP /Zi /c /O2 /W3 /D_CRT_SECURE_NO_DEPRECATE /D_CRT_STDIO_INLINE=__declspec(dllexport)__inline
+@set LJDYNBUILD=/MD /DLUA_BUILD_AS_DLL
 @set LJLINK=link /nologo /DEBUG
 @set LJMT=mt /nologo
 @set LJLIB=lib /nologo /nodefaultlib
@@ -78,11 +79,12 @@ buildvm -m folddef -o lj_folddef.h lj_opt_fold.c
 
 @if "%2" neq "debug" goto :NODEBUG
 @shift
+@set LJDYNBUILD=/MDd /DLUA_BUILD_AS_DLL
 @set LJLINK=%LJLINK% /opt:ref /opt:icf /incremental:no
 :NODEBUG
 @if "%2"=="amalg" goto :AMALGDLL
 @if "%2"=="static" goto :STATIC
-%LJCOMPILE% /MD /DLUA_BUILD_AS_DLL lj_*.c lib_*.c
+%LJCOMPILE% %LJDYNBUILD% lj_*.c lib_*.c
 @if errorlevel 1 goto :BAD
 %LJLINK% /DLL /out:%LJDLLNAME% lj_*.obj lib_*.obj
 @if errorlevel 1 goto :BAD
@@ -94,7 +96,7 @@ buildvm -m folddef -o lj_folddef.h lj_opt_fold.c
 @if errorlevel 1 goto :BAD
 @goto :MTDLL
 :AMALGDLL
-%LJCOMPILE% /MD /DLUA_BUILD_AS_DLL ljamalg.c
+%LJCOMPILE% %LJDYNBUILD% ljamalg.c
 @if errorlevel 1 goto :BAD
 %LJLINK% /DLL /out:%LJDLLNAME% ljamalg.obj lj_vm.obj
 @if errorlevel 1 goto :BAD
